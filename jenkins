@@ -1,9 +1,27 @@
 pipeline {
   agent any
+
   stages {
+
     stage('Checkout') {
-      steps { checkout scm }
+      steps {
+        checkout scm
+      }
     }
+
+    stage('Install Dependencies') {
+      steps {
+        echo 'Installing project dependencies using Maven...'
+        script {
+          if (isUnix()) {
+            sh 'mvn dependency:resolve'
+          } else {
+            bat 'mvn dependency:resolve'
+          }
+        }
+      }
+    }
+
     stage('Build & Test') {
       steps {
         script {
@@ -17,6 +35,7 @@ pipeline {
         }
       }
     }
+
     stage('Archive') {
       steps {
         junit 'target/surefire-reports/*.xml'
